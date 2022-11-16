@@ -1,37 +1,26 @@
 #!/usr/bin/python3
-import requests
-import sys
-
-
-def tasks_done(id):
-    '''Script that displays an employee completed TODO tasks in stout
-        Parameters:
-        employee_id: Is an interger representing an employee id.
-    '''
-
-    url = "https://jsonplaceholder.typicode.com/users/{}".format(id)
-    response = requests.get(url)
-    response_json = response.json()
-    employee_name = response_json.get("name")
-
-    url = "https://jsonplaceholder.typicode.com/users/{}/todos".format(id)
-    todos = requests.get(url)
-    todos_json = todos.json()
-    number_tasks = len(todos_json)
-
-    task_compleated = 0
-    task_list = ""
-
-    for task in todos_json:
-        if task.get("completed") is True:
-            task_compleated += 1
-            task_list += "\t " + task.get("title") + "\n"
-
-    print("Employee {} is done with tasks({}/{}):".format(employee_name,
-                                                          task_compleated,
-                                                          number_tasks))
-    print(task_list[:-1])
-
+""" return info on employees """
 
 if __name__ == "__main__":
-    tasks_done(sys.argv[1])
+    import requests
+    import sys
+
+    erequest = requests.get('https://jsonplaceholder.typicode.com/users/{}'
+                            .format(sys.argv[1]))
+
+    name = erequest.json().get('name')
+    trequests = requests.get('https://jsonplaceholder.typicode.com/todos')
+    tasks = trequests.json()
+    taskcompleted = 0
+    totaltasks = 0
+    tasklist = []
+    for taskcheck in tasks:
+        if taskcheck['userId'] == int(sys.argv[1]):
+            if taskcheck.get("completed"):
+                tasklist.append(taskcheck)
+                taskcompleted += 1
+            totaltasks += 1
+    print("Employee {} is done with tasks({}/{}):".format
+          (name, taskcompleted, totaltasks))
+    for completedtasks in tasklist:
+        print("\t {}".format(completedtasks.get("title")))
