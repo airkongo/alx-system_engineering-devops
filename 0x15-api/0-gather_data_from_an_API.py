@@ -1,31 +1,37 @@
 #!/usr/bin/python3
-"""
-    Python script that, for a given employee ID, returns
-    information about his/her TODO list progress.
-"""
-
 import requests
 import sys
 
-if __name__ == "__main__":
-    id = sys.argv[1]
-    usr_url = "https://jsonplaceholder.typicode.com/users/{}".format(id)
-    tds_url = "https://jsonplaceholder.typicode.com/users/{}/todos".format(id)
 
-    user = requests.get(usr_url).json()
-    todo = requests.get(tds_url).json()
+def tasks_done(id):
+    '''Script that displays an employee completed TODO tasks in stout
+        Parameters:
+        employee_id: Is an interger representing an employee id.
+    '''
 
-    completed_nb = 0
-    total_nb = 0
-    completed_tasks = []
+    url = "https://jsonplaceholder.typicode.com/users/{}".format(id)
+    response = requests.get(url)
+    response_json = response.json()
+    employee_name = response_json.get("name")
 
-    for task in todo:
-        total_nb += 1
+    url = "https://jsonplaceholder.typicode.com/users/{}/todos".format(id)
+    todos = requests.get(url)
+    todos_json = todos.json()
+    number_tasks = len(todos_json)
+
+    task_compleated = 0
+    task_list = ""
+
+    for task in todos_json:
         if task.get("completed") is True:
-            completed_nb += 1
-            completed_tasks.append(task.get("title"))
+            task_compleated += 1
+            task_list += "\t " + task.get("title") + "\n"
 
-    sentence = "Employee {} is done with tasks({}/{}):"
-    print(sentence.format(user.get("name"), completed_nb, total_nb))
-    for task in completed_tasks:
-        print("\t {}".format(task))
+    print("Employee {} is done with tasks({}/{}):".format(employee_name,
+                                                          task_compleated,
+                                                          number_tasks))
+    print(task_list[:-1])
+
+
+if __name__ == "__main__":
+    tasks_done(sys.argv[1])
